@@ -8,6 +8,7 @@ import logging
 import requests
 import argparse
 import aria2p
+from configobj import ConfigObj
 
 
 logger = logging.getLogger("tracker")
@@ -49,16 +50,35 @@ def parse_args():
         type=str,
         help="存放Tracker的地址"
     )
+    parser.add_argument(
+        "conf_path",
+        "-c",
+        "--conf-path",
+        default='/etc/aria2/aria2.conf',
+        type=str,
+        help="Aria2的配置文件路径"
+    )
+    parser.add_argument(
+        "rpc_url",
+        "-r",
+        "--rpc-url",
+        default='http://localhost',
+        type=str,
+        help="Aria2的RPC路径"
+    )
+
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
+
+    conf = ConfigObj(args.conf_path, encoding='UTF8')
     aria2 = aria2p.API(
         aria2p.Client(
-            host="http://localhost",
-            port=6800,
-            secret=""
+            host=args.rpc_url,
+            port=conf["rpc-listen-port"],
+            secret=conf["rpc-secret"]
         )
     )
     while True:

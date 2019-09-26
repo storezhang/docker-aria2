@@ -17,7 +17,7 @@ steps:
         - tag
         - pull_request
     settings:
-      repo: storezhang/aria
+      repo: storezhang/aria2
       dockerfile: ./Dockerfile
       mirror: https://docker.mirrors.ustc.edu.cn
       storage_driver: vfs
