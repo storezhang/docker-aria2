@@ -10,7 +10,6 @@ import argparse
 import aria2p
 from configobj import ConfigObj
 
-
 logger = logging.getLogger("tracker")
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler(sys.stdout)
@@ -29,7 +28,11 @@ def get_trackers(tracker_update_urls):
     tracker_list = set()
 
     for tracker_update_url in tracker_update_urls.split():
-        r = requests.get(tracker_update_url)
+        try:
+            r = requests.get(tracker_update_url)
+        except BaseException as e:
+            logger.error("msg=获取Tracker列表出现问题, context=[tracker_update_url=%s, exception=%s]", trackers, repr(e))
+
         for tracker_url in r.text.split():
             tracker_list.add(tracker_url)
 
@@ -98,4 +101,4 @@ if __name__ == "__main__":
         exclude_trackers = get_trackers(app_conf["bt-tracker"]["excludes"])
         logger.debug("msg=开始更新Tracker, context=[trackes=%s, exclude_trackers=%s]", trackers, exclude_trackers)
         save_trackers(aria2, aria2_conf, trackers, exclude_trackers)
-        time.sleep(6 * 60 * 60)
+        time.sleep(1 * 60 * 60)
