@@ -21,6 +21,9 @@ if [ ! -f /conf/aria2.conf ]; then
     fi
     echo "rpc-secret=${SECRET}" >> /conf/aria2.conf
 fi
+if [ ! -f /conf/config.conf ]; then
+    cp /etc/aria2/config.conf /conf/config.conf
+fi
 if [ ! -f /conf/on-complete.sh ]; then
     cp /etc/aria2/shell/on-complete.sh /conf/on-complete.sh
 fi

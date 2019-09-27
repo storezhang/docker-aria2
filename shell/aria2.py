@@ -1,6 +1,6 @@
 #! /bin/python3
 # ^_^encoding=utf-8^_^
-
+import os
 from os import system
 import sys
 import time
@@ -43,25 +43,11 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description='Aria Tracker自动更新')
     parser.add_argument(
-        "-u",
-        "--tracker-urls",
-        default='https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt',
-        type=str,
-        help="存放Tracker的地址"
-    )
-    parser.add_argument(
-        "-e",
-        "--exclude-tracker-urls",
-        default='https://raw.githubusercontent.com/ngosang/trackerslist/master/blacklist.txt',
-        type=str,
-        help="存放排除Tracker的地址"
-    )
-    parser.add_argument(
         "-c",
-        "--conf-path",
-        default='/etc/aria2/aria2.conf',
+        "--conf-dir",
+        default='/etc/aria2/',
         type=str,
-        help="Aria2的配置文件路径"
+        help="配置文件路径"
     )
     parser.add_argument(
         "-r",
@@ -74,11 +60,11 @@ def parse_args():
     return parser.parse_args()
 
 
-def save_trackers(aria2_client, aria2_conf, tracker_list, exclude_tracker_list):
+def save_trackers(aria2_client, conf, tracker_list, exclude_tracker_list):
     """
     设置Tracker列表
     :param aria2_client: Aria2客户端
-    :param aria2_conf: Aria2的配置文件
+    :param conf: Aria2的配置文件
     :param tracker_list: Tackers列表
     :param exclude_tracker_list: 排除的Tracker列表
     :return:
@@ -91,23 +77,24 @@ def save_trackers(aria2_client, aria2_conf, tracker_list, exclude_tracker_list):
     # 写入配置文件
     conf["bt-tracker"] = tracker_list
     conf["bt-exclude-tracker"] = exclude_tracker_list
-    aria2_conf.write()
+    conf.write()
 
 
 if __name__ == "__main__":
     args = parse_args()
 
-    conf = ConfigObj(args.conf_path, encoding='UTF8')
+    aria2_conf = ConfigObj(os.path.join(args.conf_dir, 'aria2.conf'), encoding='UTF8')
+    conf = ConfigObj(os.path.join(args.conf_dir, 'config.conf'), encoding='UTF8')
     aria2 = aria2p.API(
         aria2p.Client(
             host=args.rpc_url,
-            port=conf["rpc-listen-port"],
-            secret=conf.get("rpc-secret", "")
+            port=aria2_conf["rpc-listen-port"],
+            secret=aria2_conf.get("rpc-secret", "")
         )
     )
 
     while True:
-        trackers = get_trackers(args.tracker_urls)
-        exclude_trackers = get_trackers(args.exclude_tracker_urls)
-        save_trackers(aria2, conf, trackers, exclude_trackers)
+        trackers = get_trackers(conf["bt-tracker"]["includes"])
+        exclude_trackers = get_trackers(conf["bt-tracker"]["excludes"])
+        save_trackers(aria2, aria2_conf, trackers, exclude_trackers)
         time.sleep(2 * 60 * 60)
