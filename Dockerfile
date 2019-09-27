@@ -28,7 +28,7 @@ RUN set -ex \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade pip \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade setuptools \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade -r /etc/aria2/requirements.txt \
-    && chmod +x /etc/aria2/start.sh
+    && chmod +x /etc/aria2/start.sh \
     && rm -rf /var/cache/apk/*
 
 CMD ["/etc/aria2/start.sh"]
