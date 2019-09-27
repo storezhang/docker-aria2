@@ -11,7 +11,7 @@ WORKDIR /
 VOLUME ["/data"]
 VOLUME ["/conf"]
 
-ADD shell/* /etc/aria/shell/
+ADD shell /etc/aria2/shell/
 ADD aria2.conf /etc/aria2/aria2.conf
 ADD config.conf /etc/aria2/config.conf
 ADD requirements.txt /etc/aria2/requirements.txt
