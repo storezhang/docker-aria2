@@ -21,8 +21,8 @@ ADD requirements.txt /etc/aria2/requirements.txt
 
 RUN set -ex \
     \
-    && groupadd -g ${GID} -o ${USERNAME} \
-    && useradd -m -u ${UID} -g ${GID} -o -s /bin/sh ${UNAME} \
+    && addgroup -g ${GID} -o ${USERNAME} \
+    && adduser -m -u ${UID} -g ${GID} -o -s /bin/sh ${UNAME} \
     \
     && apk update \
     && mkdir -p /conf \
