@@ -45,5 +45,5 @@ fi
 chmod +x /conf/on-complete.sh
 touch /conf/aria2.session
 
-python3 /etc/aria2/shell/aria2.py -c "/conf" &
-aria2c --conf-path=/conf/aria2.conf
+exec su-exec "${USERNAME}" aria2c --conf-path=/conf/aria2.conf &
+exec su-exec "${USERNAME}" python3 /etc/aria2/shell/aria2.py -c "/conf"
