@@ -1,24 +1,26 @@
 FROM storezhang/alpine
 
+
 MAINTAINER storezhang "storezhang@gmail.com"
 LABEL architecture="AMD64/x86_64" version="latest" build="2019-09-26"
+
 
 ENV USERNAME aria2
 ENV UID 1000
 ENV GID 1000
 ENV SECRET "E9pY8ptiyUIqmHUlKgG9gK/xcwmADsSWuYb9AS7tI8Y="
 
+
 EXPOSE 26800
+
 
 WORKDIR /
 VOLUME ["/data"]
 VOLUME ["/conf"]
 
-COPY root /
-ADD shell /etc/aria2/shell/
-ADD aria2.conf /etc/aria2/aria2.conf
-ADD config.conf /etc/aria2/config.conf
+
 ADD requirements.txt /etc/aria2/requirements.txt
+
 
 RUN set -ex \
     \
@@ -30,7 +32,7 @@ RUN set -ex \
     && mkdir -p /conf \
     && mkdir -p /data \
     \
-    && apk --no-cache add su-exec s6 aria2 python3 python3-dev \
+    && apk --no-cache add bash su-exec s6 aria2 python3 python3-dev \
     && python3 -m ensurepip \
     && rm -r /usr/lib/python*/ensurepip \
     && pip3 config set global.index-url http://mirrors.aliyun.com/pypi/simple/ \
@@ -39,6 +41,10 @@ RUN set -ex \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade -r /etc/aria2/requirements.txt \
     \
     && rm -rf /var/cache/apk/*
+
+
+COPY root /
+
 
 ENTRYPOINT ["/usr/bin/entrypoint"]
 CMD ["/bin/s6-svscan", "/etc/s6"]
