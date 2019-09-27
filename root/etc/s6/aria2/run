@@ -1,0 +1,7 @@
+#!/bin/bash
+
+[[ -f ./setup ]] && source ./setup
+
+pushd /data > /dev/null
+    exec su-exec ${USERNAME} aria2c --conf-path=/conf/aria2.conf
+popd

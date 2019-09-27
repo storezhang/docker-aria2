@@ -1,0 +1,5 @@
+#!/bin/bash
+
+pushd /conf > /dev/null
+    exec su-exec ${USERNAME} python3 /etc/aria2/shell/aria2.py -c "/conf"
+popd

@@ -14,6 +14,7 @@ WORKDIR /
 VOLUME ["/data"]
 VOLUME ["/conf"]
 
+COPY root /
 ADD shell /etc/aria2/shell/
 ADD aria2.conf /etc/aria2/aria2.conf
 ADD config.conf /etc/aria2/config.conf
@@ -37,7 +38,7 @@ RUN set -ex \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade pip setuptools \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade -r /etc/aria2/requirements.txt \
     \
-    && chmod +x /etc/aria2/shell/start.sh \
     && rm -rf /var/cache/apk/*
 
-CMD ["/etc/aria2/shell/start.sh"]
+ENTRYPOINT ["/usr/bin/entrypoint"]
+CMD ["/bin/s6-svscan", "/etc/s6"]
