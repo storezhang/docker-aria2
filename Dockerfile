@@ -3,6 +3,10 @@ FROM storezhang/alpine
 MAINTAINER storezhang "storezhang@gmail.com"
 LABEL architecture="AMD64/x86_64" version="latest" build="2019-09-26"
 
+ENV SECRET E9pY8ptiyUIqmHUlKgG9gK/xcwmADsSWuYb9AS7tI8Y=
+ENV TRACKER_LIST_URL https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt
+ENV EXCLUDE_TRACKER_LIST_URL https://raw.githubusercontent.com/ngosang/trackerslist/master/blacklist.txt
+
 EXPOSE 26800
 
 WORKDIR /

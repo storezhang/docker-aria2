@@ -20,20 +20,20 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def tracker_list(tracker_urls):
+def get_trackers(tracker_update_urls):
     """
     从Tracker地址组合组Tracker列表
-    :param tracker_urls: Tracker网址列表
+    :param tracker_update_urls: Tracker网址列表
     :return: Tacker列表
     """
-    trackers = set()
+    tracker_list = set()
 
-    urls = tracker_urls.split()
-    for url in urls:
-        r = requests.get(url)
-        trackers.add(r.content.split())
+    for tracker_update_url in tracker_update_urls.split():
+        r = requests.get(tracker_update_url)
+        for tracker_url in r.text.split():
+            tracker_list.add(tracker_url)
 
-    return trackers
+    return tracker_list
 
 
 def parse_args():
@@ -43,7 +43,6 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description='Aria Tracker自动更新')
     parser.add_argument(
-        "tracker_urls",
         "-u",
         "--tracker-urls",
         default='https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt',
@@ -51,7 +50,13 @@ def parse_args():
         help="存放Tracker的地址"
     )
     parser.add_argument(
-        "conf_path",
+        "-e",
+        "--exclude-tracker-urls",
+        default='https://raw.githubusercontent.com/ngosang/trackerslist/master/blacklist.txt',
+        type=str,
+        help="存放排除Tracker的地址"
+    )
+    parser.add_argument(
         "-c",
         "--conf-path",
         default='/etc/aria2/aria2.conf',
@@ -59,7 +64,6 @@ def parse_args():
         help="Aria2的配置文件路径"
     )
     parser.add_argument(
-        "rpc_url",
         "-r",
         "--rpc-url",
         default='http://localhost',
@@ -70,6 +74,26 @@ def parse_args():
     return parser.parse_args()
 
 
+def save_trackers(aria2_client, aria2_conf, tracker_list, exclude_tracker_list):
+    """
+    设置Tracker列表
+    :param aria2_client: Aria2客户端
+    :param aria2_conf: Aria2的配置文件
+    :param tracker_list: Tackers列表
+    :param exclude_tracker_list: 排除的Tracker列表
+    :return:
+    """
+    options = aria2_client.get_global_options()
+    options.bt_tracker = tracker_list
+    options.bt_exclude_tracker = exclude_tracker_list
+    aria2_client.set_global_options(options)
+
+    # 写入配置文件
+    conf["bt-tracker"] = tracker_list
+    conf["bt-exclude-tracker"] = exclude_tracker_list
+    aria2_conf.write()
+
+
 if __name__ == "__main__":
     args = parse_args()
 
@@ -78,9 +102,12 @@ if __name__ == "__main__":
         aria2p.Client(
             host=args.rpc_url,
             port=conf["rpc-listen-port"],
-            secret=conf["rpc-secret"]
+            secret=conf.get("rpc-secret", "")
         )
     )
+
     while True:
-        tackers = tracker_list(args.tracker_urls)
+        trackers = get_trackers(args.tracker_urls)
+        exclude_trackers = get_trackers(args.exclude_tracker_urls)
+        save_trackers(aria2, conf, trackers, exclude_trackers)
         time.sleep(2 * 60 * 60)
