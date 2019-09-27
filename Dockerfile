@@ -30,4 +30,4 @@ RUN set -ex \
     && chmod +x /etc/aria2/shell/start.sh \
     && rm -rf /var/cache/apk/*
 
-CMD ["/etc/aria2/start.sh"]
+CMD ["/etc/aria2/shell/start.sh"]
