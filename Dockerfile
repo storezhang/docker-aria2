@@ -24,8 +24,9 @@ RUN set -ex \
     && apk --no-cache add aria2 python3 python3-dev \
     && python3 -m ensurepip \
     && rm -r /usr/lib/python*/ensurepip \
-    && pip3 install --default-timeout=100 --no-cache-dir --upgrade pip \
-    && pip3 install --default-timeout=100 --no-cache-dir --upgrade setuptools \
+    && pip3 config set global.index-url http://mirrors.aliyun.com/pypi/simple/ \
+    && pip3 config set global.trusted-host mirrors.aliyun.com \
+    && pip3 install --default-timeout=100 --no-cache-dir --upgrade pip setuptools \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade -r /etc/aria2/requirements.txt \
     && chmod +x /etc/aria2/shell/start.sh \
     && rm -rf /var/cache/apk/*

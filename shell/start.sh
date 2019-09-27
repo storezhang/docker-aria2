@@ -31,5 +31,5 @@ fi
 chmod +x /conf/on-complete.sh
 touch /conf/aria2.session
 
-python /etc/aria2/shell/aria2.py -c "/conf/aria2.conf" -u "${TRACKER_LIST_URL}" -e "${EXCLUDE_TRACKER_LIST_URL}" &
+python3 /etc/aria2/shell/aria2.py -c "/conf" &
 aria2c --conf-path=/conf/aria2.conf
