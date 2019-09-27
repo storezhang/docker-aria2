@@ -3,6 +3,9 @@ FROM storezhang/alpine
 MAINTAINER storezhang "storezhang@gmail.com"
 LABEL architecture="AMD64/x86_64" version="latest" build="2019-09-26"
 
+ENV USERNAME aria2
+ENV UID 1000
+ENV GID 1000
 ENV SECRET "E9pY8ptiyUIqmHUlKgG9gK/xcwmADsSWuYb9AS7tI8Y="
 
 EXPOSE 26800
@@ -18,6 +21,9 @@ ADD requirements.txt /etc/aria2/requirements.txt
 
 RUN set -ex \
     \
+    && groupadd -g ${GID} -o ${USERNAME} \
+    && useradd -m -u ${UID} -g ${GID} -o -s /bin/sh ${UNAME} \
+    \
     && apk update \
     && mkdir -p /conf \
     && mkdir -p /data \
@@ -30,5 +36,7 @@ RUN set -ex \
     && pip3 install --default-timeout=100 --no-cache-dir --upgrade -r /etc/aria2/requirements.txt \
     && chmod +x /etc/aria2/shell/start.sh \
     && rm -rf /var/cache/apk/*
+
+USER ${USERNAME}
 
 CMD ["/etc/aria2/shell/start.sh"]
