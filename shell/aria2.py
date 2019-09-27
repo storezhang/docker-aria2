@@ -84,7 +84,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     aria2_conf = ConfigObj(os.path.join(args.conf_dir, 'aria2.conf'), encoding='UTF8')
-    conf = ConfigObj(os.path.join(args.conf_dir, 'config.conf'), encoding='UTF8')
+    app_conf = ConfigObj(os.path.join(args.conf_dir, 'config.conf'), encoding='UTF8')
     aria2 = aria2p.API(
         aria2p.Client(
             host=args.rpc_url,
@@ -94,7 +94,8 @@ if __name__ == "__main__":
     )
 
     while True:
-        trackers = get_trackers(conf["bt-tracker"]["includes"])
-        exclude_trackers = get_trackers(conf["bt-tracker"]["excludes"])
+        trackers = get_trackers(app_conf["bt-tracker"]["includes"])
+        exclude_trackers = get_trackers(app_conf["bt-tracker"]["excludes"])
+        logger.debug("msg=开始更新Tracker, context=[trackes=%s, exclude_trackers=%s]", trackers, exclude_trackers)
         save_trackers(aria2, aria2_conf, trackers, exclude_trackers)
-        time.sleep(2 * 60 * 60)
+        time.sleep(6 * 60 * 60)
