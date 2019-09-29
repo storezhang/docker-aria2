@@ -30,8 +30,13 @@ def get_trackers(tracker_update_urls):
     for tracker_update_url in tracker_update_urls.split():
         try:
             r = requests.get(tracker_update_url)
-        except BaseException as e:
-            logger.error("msg=获取Tracker列表出现问题, context=[tracker_update_url=%s, exception=%s]", trackers, repr(e))
+        except Exception as e:
+            logger.error(
+                "msg=获取Tracker列表出现问题, context=[tracker_update_url=%s, exception=%s]",
+                tracker_update_url,
+                str(e)
+            )
+            continue
 
         for tracker_url in r.text.split():
             tracker_list.add(tracker_url)
@@ -72,6 +77,7 @@ def save_trackers(aria2_client, conf, tracker_list, exclude_tracker_list):
     :param exclude_tracker_list: 排除的Tracker列表
     :return:
     """
+
     options = aria2_client.get_global_options()
     options.bt_tracker = tracker_list
     options.bt_exclude_tracker = exclude_tracker_list
@@ -99,6 +105,7 @@ if __name__ == "__main__":
     while True:
         trackers = get_trackers(app_conf["bt-tracker"]["includes"])
         exclude_trackers = get_trackers(app_conf["bt-tracker"]["excludes"])
-        logger.debug("msg=开始更新Tracker, context=[trackes=%s, exclude_trackers=%s]", trackers, exclude_trackers)
-        save_trackers(aria2, aria2_conf, trackers, exclude_trackers)
+        if trackers or exclude_trackers:
+            logger.debug("msg=开始更新Tracker, context=[trackes=%s, exclude_trackers=%s]", trackers, exclude_trackers)
+            save_trackers(aria2, aria2_conf, trackers, exclude_trackers)
         time.sleep(1 * 60 * 60)
