@@ -3,6 +3,7 @@ FROM storezhang/alpine
 
 MAINTAINER storezhang "storezhang@gmail.com"
 LABEL architecture="AMD64/x86_64" version="latest" build="2019-09-26"
+LABEL Description="基于Alpine的Aria2镜像，增加自动更新BT Tracker功能。"
 
 
 ENV USERNAME aria2
@@ -32,7 +33,7 @@ RUN set -ex \
     && mkdir -p /conf \
     && mkdir -p /data \
     \
-    && apk --no-cache add bash su-exec s6 aria2 python3 python3-dev \
+    && apk --no-cache add bash s6 aria2 python3 python3-dev \
     && python3 -m ensurepip \
     && rm -r /usr/lib/python*/ensurepip \
     && pip3 config set global.index-url http://mirrors.aliyun.com/pypi/simple/ \
