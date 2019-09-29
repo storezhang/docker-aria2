@@ -34,12 +34,13 @@ def get_trackers(tracker_update_urls):
             logger.error(
                 "msg=获取Tracker列表出现问题, context=[tracker_update_url=%s, exception=%s]",
                 tracker_update_url,
-                str(e)
+                repr(e)
             )
             continue
 
-        for tracker_url in r.text.split():
-            tracker_list.add(tracker_url)
+        if 200 == r.status_code:
+            for tracker_url in r.text.split():
+                tracker_list.add(tracker_url)
 
     return tracker_list
 
@@ -78,15 +79,37 @@ def save_trackers(aria2_client, conf, tracker_list, exclude_tracker_list):
     :return:
     """
 
-    options = aria2_client.get_global_options()
-    options.bt_tracker = tracker_list
-    options.bt_exclude_tracker = exclude_tracker_list
-    aria2_client.set_global_options(options)
+    if tracker_list:
+        try:
+            options = aria2_client.get_global_options()
+            options.bt_tracker = tracker_list
+            aria2_client.set_global_options(options)
 
-    # 写入配置文件
-    conf["bt-tracker"] = tracker_list
-    conf["bt-exclude-tracker"] = exclude_tracker_list
-    conf.write()
+            # 写入配置文件
+            conf["bt-tracker"] = tracker_list
+            conf.write()
+        except Exception as e:
+            logger.error(
+                "msg=设置Tracker出现错误, context=[trackers=%s, exception=%s]",
+                tracker_list,
+                repr(e)
+            )
+
+        if exclude_tracker_list:
+            try:
+                options = aria2_client.get_global_options()
+                options.bt_exclude_tracker = exclude_tracker_list
+                aria2_client.set_global_options(options)
+
+                # 写入配置文件
+                conf["bt-exclude-tracker"] = exclude_tracker_list
+                conf.write()
+            except Exception as e:
+                logger.error(
+                    "msg=设置Excludes Tracker出现错误, context=[exclude_trackers=%s, exception=%s]",
+                    exclude_tracker_list,
+                    repr(e)
+                )
 
 
 if __name__ == "__main__":
@@ -108,4 +131,7 @@ if __name__ == "__main__":
         if trackers or exclude_trackers:
             logger.debug("msg=开始更新Tracker, context=[trackes=%s, exclude_trackers=%s]", trackers, exclude_trackers)
             save_trackers(aria2, aria2_conf, trackers, exclude_trackers)
+        else:
+            logger.debug("msg=没有取得最新的Tracker，不更新, context=[]")
+
         time.sleep(1 * 60 * 60)
