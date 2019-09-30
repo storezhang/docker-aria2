@@ -1,6 +1,7 @@
 #! /bin/python3
 # ^_^encoding=utf-8^_^
 import os
+import re
 import sys
 import time
 import logging
@@ -38,8 +39,9 @@ def get_trackers(tracker_update_urls):
             continue
 
         if 200 == r.status_code:
-            for tracker_url in r.text.split():
-                tracker_list.add(tracker_url)
+            for url in r.text.split():
+                if url.startswith("udp") or url.startswith("tcp") or url.startswith("http") or url.startswith("https"):
+                    tracker_list.add(url)
 
     return tracker_list
 
