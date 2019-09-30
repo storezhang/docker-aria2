@@ -1,7 +1,6 @@
 #! /bin/python3
 # ^_^encoding=utf-8^_^
 import os
-from os import system
 import sys
 import time
 import logging
@@ -69,6 +68,15 @@ def parse_args():
     return parser.parse_args()
 
 
+def parse_tracker(tracker_url_list):
+    """
+    合成Aria2需要的Tracker配置
+    :param tracker_url_list: Tracker URL地址列表
+    :return: Tracker配置
+    """
+    return ','.join(tracker_url_list)
+
+
 def save_trackers(aria2_client, conf, tracker_list, exclude_tracker_list):
     """
     设置Tracker列表
@@ -82,12 +90,16 @@ def save_trackers(aria2_client, conf, tracker_list, exclude_tracker_list):
     if tracker_list:
         try:
             options = aria2_client.get_global_options()
-            options.bt_tracker = tracker_list
+            options.bt_tracker = parse_tracker(tracker_list)
             aria2_client.set_global_options(options)
 
             # 写入配置文件
-            conf["bt-tracker"] = tracker_list
+            conf["bt-tracker"] = list(tracker_list)
             conf.write()
+            logger.debug(
+                "msg=设置Tracker成功, context=[trackers=%s]",
+                tracker_list
+            )
         except Exception as e:
             logger.error(
                 "msg=设置Tracker出现错误, context=[trackers=%s, exception=%s]",
@@ -98,12 +110,16 @@ def save_trackers(aria2_client, conf, tracker_list, exclude_tracker_list):
         if exclude_tracker_list:
             try:
                 options = aria2_client.get_global_options()
-                options.bt_exclude_tracker = exclude_tracker_list
+                options.bt_exclude_tracker = parse_tracker(exclude_tracker_list)
                 aria2_client.set_global_options(options)
 
                 # 写入配置文件
-                conf["bt-exclude-tracker"] = exclude_tracker_list
+                conf["bt-exclude-tracker"] = list(exclude_tracker_list)
                 conf.write()
+                logger.debug(
+                    "msg=设置Excludes Tracker成功, context=[exclude_trackers=%s]",
+                    exclude_tracker_list
+                )
             except Exception as e:
                 logger.error(
                     "msg=设置Excludes Tracker出现错误, context=[exclude_trackers=%s, exception=%s]",
@@ -115,7 +131,7 @@ def save_trackers(aria2_client, conf, tracker_list, exclude_tracker_list):
 if __name__ == "__main__":
     args = parse_args()
 
-    aria2_conf = ConfigObj(os.path.join(args.conf_dir, 'aria2.conf'), encoding='UTF8')
+    aria2_conf = ConfigObj(os.path.join(args.conf_dir, 'aria2.conf'), list_values=False, encoding='UTF8')
     app_conf = ConfigObj(os.path.join(args.conf_dir, 'config.conf'), encoding='UTF8')
     aria2 = aria2p.API(
         aria2p.Client(
