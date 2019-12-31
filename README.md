@@ -1,5 +1,6 @@
 # docker-aria2
-[![Build Status](https://drone.storezhang.imyserver.com:20443/api/badges/storezhang/docker-aria2/status.svg)](https://drone.storezhang.imyserver.com:20443/storezhang/docker-aria2)
+[![Build Status](https://cloud.drone.io/api/badges/storezhang/docker-aria2/status.svg)](https://cloud.drone.io/storezhang/docker-aria2)
+
 基于Alpine的Aria容器，提供了自动更新最佳Tracker的功能
 
 ## 特点
